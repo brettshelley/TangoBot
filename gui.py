@@ -1,3 +1,4 @@
+import Maestro
 import tkinter as tk
 import time
 import queue
