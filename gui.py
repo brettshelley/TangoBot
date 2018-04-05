@@ -248,29 +248,52 @@ class Control():
         for j in frame.winfo_children():
             j.destroy()
 
-rob = Controller()
-q = queue.Queue()
-count=0
+class GUI():
+    rob = Controller()
+    q = queue.Queue()
+    count=0
 
-win = tk.Tk()
-win.title("Tango Bot")
+    win = tk.Tk()
+    win.title("Tango Bot")
 
-moveButton = tk.Button(win, width="15", text="Move", command=Button.createMove)
-turnButton = tk.Button(win, width="15", text="Turn", command=Button.createTurn)
-bodyButton = tk.Button(win, width="15", text="Rotate Body", command=Button.createBody)
-headButton = tk.Button(win, width="15", text="Move Head", command=Button.createHead)
-moveButton.grid(column=0, row=0, pady=10)
-turnButton.grid(column=1, row=0, pady=10)
-bodyButton.grid(column=2, row=0, pady=10)
-headButton.grid(column=3, row=0, pady=10)
+    moveButton = tk.Button(win, width="15", text="Move", command=Button.createMove)
+    turnButton = tk.Button(win, width="15", text="Turn", command=Button.createTurn)
+    bodyButton = tk.Button(win, width="15", text="Rotate Body", command=Button.createBody)
+    headButton = tk.Button(win, width="15", text="Move Head", command=Button.createHead)
+    moveButton.grid(column=0, row=0, pady=10)
+    turnButton.grid(column=1, row=0, pady=10)
+    bodyButton.grid(column=2, row=0, pady=10)
+    headButton.grid(column=3, row=0, pady=10)
 
-frame = tk.Frame(win, width=750, height=300)
-frame.grid(columnspan=4, row=1, padx=15, pady=15)
-frame.grid_propagate(False)
+    frame = tk.Frame(win, width=750, height=300)
+    frame.grid(columnspan=4, row=1, padx=15, pady=15)
+    frame.grid_propagate(False)
 
-reset = tk.Button(win, width="20", text="Reset", command=Control.reset)
-run = tk.Button(win, width="20", text="Run", command=Control.run)
-reset.grid(columnspan=2, column=0, row=2, pady=10)
-run.grid(columnspan=2, column=2, row=2, pady=10)
+    reset = tk.Button(win, width="20", text="Reset", command=Control.reset)
+    run = tk.Button(win, width="20", text="Run", command=Control.run)
+    reset.grid(columnspan=2, column=0, row=2, pady=10)
+    run.grid(columnspan=2, column=2, row=2, pady=10)
 
-win.mainloop()
+    win.mainloop()
+
+if __name__ == '__main__':
+
+    print("started main")
+
+    gui = GUI()
+    server = server.server(gui)
+
+    threads = []
+
+    print("appending thread")
+
+    threads.append(threading.Thread(name='tcp_server', targer=server.listen))
+
+    for thread in threads:
+        print("starti0ng thread", thread.name)
+        thread.start()
+
+    gui.run()
+
+    for thread in threads:
+        thread.join()
