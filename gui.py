@@ -3,6 +3,9 @@ import tkinter as tk
 import time
 import queue
 from tkinter.font import Font
+import server
+import threading
+
 
 class Button():
     def createMove():
@@ -32,6 +35,20 @@ class Button():
         count=count+1
         h = Head()
         instance = tk.Button(frame, text="Head", width=19, height=6, command=h.popUp)
+        Button.place(instance)
+
+    def createListen():
+        global count
+        count=count+1
+        l = Listen()
+        instance = tk.Button(frame, text="Listen", width=19, height=6)
+        Button.place(instance)
+
+    def createSpeak():
+        global count
+        count=count+1
+        s = Speak()
+        instance = tk.Button(frame, text="Speak", width=19, height=6, command=s.popUp)
         Button.place(instance)
 
     def place(instance):
@@ -72,7 +89,7 @@ class Move():
         backwards = tk.Radiobutton(pop, text="Reverse", variable=self.var, value=1, command=self.direction)
         label = tk.Label(pop, text="Duration:")
         self.durationBox = tk.Spinbox(pop, width=5, from_=0, to=30, increment=0.5, command=self.duration, font=Font(family='Helvetica', size=20)) 
-        save = tk.Button(pop, text="Save", width=10, height=2, command=pop.destroy)
+        save = tk.Button(pop, text=B"Save", width=10, height=2, command=pop.destroy)
 
         forward.grid(pady=15)
         backwards.grid()
@@ -206,6 +223,23 @@ class Head():
         elif (d==1 or d==3):
             self.turn=4500
 
+class Listen():
+    def __init__(self):
+        global q
+        q.put(self)
+
+
+class Speak():
+    def __init__(self):
+        global q
+        q.put(self)
+
+    def popUp(self):
+        pop=tk.Toplevel()
+        pop.minsize(180, 180)
+        pop.title("Properties")
+
+        self.var = tk.IntVar()
 
 class Control():
     def run():
@@ -249,32 +283,41 @@ class Control():
             j.destroy()
 
 class GUI():
-    rob = Controller()
-    q = queue.Queue()
-    count=0
+    def run(self):
+        global rob
+        rob = Controller()
+        global q
+        q = queue.Queue()
+        global count
+        count = 0
 
-    win = tk.Tk()
-    win.title("Tango Bot")
+        win = tk.Tk()
+        win.title("Tango Bot")
 
-    moveButton = tk.Button(win, width="15", text="Move", command=Button.createMove)
-    turnButton = tk.Button(win, width="15", text="Turn", command=Button.createTurn)
-    bodyButton = tk.Button(win, width="15", text="Rotate Body", command=Button.createBody)
-    headButton = tk.Button(win, width="15", text="Move Head", command=Button.createHead)
-    moveButton.grid(column=0, row=0, pady=10)
-    turnButton.grid(column=1, row=0, pady=10)
-    bodyButton.grid(column=2, row=0, pady=10)
-    headButton.grid(column=3, row=0, pady=10)
+        moveButton = tk.Button(win, width="12", text="Move", command=Button.createMove)
+        turnButton = tk.Button(win, width="12", text="Turn", command=Button.createTurn)
+        bodyButton = tk.Button(win, width="12", text="Rotate Body", command=Button.createBody)
+        headButton = tk.Button(win, width="12", text="Move Head", command=Button.createHead)
+        listenButton = tk.Button(win, width="12", text="Listen", command=Button.createListen)
+        speakButton = tk.Button(win, width="12", text="Speak", command=Button.createSpeak)
+        moveButton.grid(column=0, row=0, pady=10)
+        turnButton.grid(column=1, row=0, pady=10)
+        bodyButton.grid(column=2, row=0, pady=10)
+        headButton.grid(column=3, row=0, pady=10)
+        listenButton.grid(column=4, row=0, pady=10)
+        speakButton.grid(column=5, row=0, pady=10)
+    
+        global frame
+        frame = tk.Frame(win, width=750, height=300)
+        frame.grid(columnspan=6, row=1, padx=15, pady=15)
+        frame.grid_propagate(False)
 
-    frame = tk.Frame(win, width=750, height=300)
-    frame.grid(columnspan=4, row=1, padx=15, pady=15)
-    frame.grid_propagate(False)
+        reset = tk.Button(win, width="20", text="Reset", command=Control.reset)
+        run = tk.Button(win, width="20", text="Run", command=Control.run)
+        reset.grid(columnspan=3, column=0, row=2, pady=10)
+        run.grid(columnspan=3, column=2, row=2, pady=10)
 
-    reset = tk.Button(win, width="20", text="Reset", command=Control.reset)
-    run = tk.Button(win, width="20", text="Run", command=Control.run)
-    reset.grid(columnspan=2, column=0, row=2, pady=10)
-    run.grid(columnspan=2, column=2, row=2, pady=10)
-
-    win.mainloop()
+        win.mainloop()
 
 if __name__ == '__main__':
 
@@ -287,7 +330,7 @@ if __name__ == '__main__':
 
     print("appending thread")
 
-    threads.append(threading.Thread(name='tcp_server', targer=server.listen))
+    threads.append(threading.Thread(name='tcp_server', target=server.listen))
 
     for thread in threads:
         print("starti0ng thread", thread.name)
