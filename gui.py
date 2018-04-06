@@ -228,6 +228,9 @@ class Listen():
         global q
         q.put(self)
 
+    def cmd(self):
+        msg = "listen"
+
 
 class Speak():
     def __init__(self):
@@ -272,6 +275,15 @@ class Control():
                 rob.setTarget(target, x.speed)
                 time.sleep(float (x.sleep))
                 rob.setTarget(target, x.stop)
+
+            if (type(x) is Listen):
+                server.connect()
+                server.send("listen")
+                time.sleep(15)
+            elif (type(x) is Speak):
+                server.connect()
+                server.send("beep beep")
+                time.sleep(5)
                 
             time.sleep(1)
 
@@ -324,19 +336,4 @@ if __name__ == '__main__':
     print("started main")
 
     gui = GUI()
-    server = server.server(gui)
-
-    threads = []
-
-    print("appending thread")
-
-    threads.append(threading.Thread(name='tcp_server', target=server.listen))
-
-    for thread in threads:
-        print("starti0ng thread", thread.name)
-        thread.start()
-
     gui.run()
-
-    for thread in threads:
-        thread.join()
