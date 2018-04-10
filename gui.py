@@ -52,6 +52,7 @@ class Button():
         Button.place(instance)
 
     def place(instance):
+        global count
         if (count < 5):
             r=0
         elif(count < 9):
@@ -234,6 +235,8 @@ class Listen():
 
 class Speak():
     def __init__(self):
+        self.msg='Hello'
+
         global q
         q.put(self)
 
@@ -243,6 +246,32 @@ class Speak():
         pop.title("Properties")
 
         self.var = tk.IntVar()
+        hello = tk.Radiobutton(pop, text="Hello", variable=self.var, value=0, command=self.phrase)
+        beep = tk.Radiobutton(pop, text="Beep", variable=self.var, value=1, command=self.phrase)
+        nothing = tk.Radiobutton(pop, text="Nothing Found", variable=self.var, value=2, command=self.phrase)
+        what = tk.Radiobutton(pop, text="What should do?", variable=self.var, value=3, command=self.phrase)
+        cat = tk.Radiobutton(pop, text= "Cat", variable=self.var, value=4, command=self.phrase)
+        save = tk.Button(pop, text="save", width=10, height=2, command=pop.destroy)
+
+        beep.grid(pady=15)
+        hello.grid()
+        nothing.grid(pady=15)
+        what.grid()
+        cat.grid(pady=15)
+        save.grid(pady=20, padx=25)
+
+    def phrase(self):
+        choice = self.var.get()
+        if choice==0:
+            self.msg = "Hello"
+        elif choice==1:
+            self.msg = "Beep beep lettuce"
+        elif choice==2:
+            self.msg = "Nothing found here"
+        elif choice==3:
+            self.msg = "What should I do next"
+        elif choice ==4:
+            self.msg = "I like cats"
 
 class Control():
     def run():
@@ -277,13 +306,12 @@ class Control():
                 rob.setTarget(target, x.stop)
 
             if (type(x) is Listen):
-                server.connect()
-                server.send("listen")
-                time.sleep(15)
+                conn.connect()
+                conn.send("listen")
+                time.sleep(7)
             elif (type(x) is Speak):
-                server.connect()
-                server.send("beep beep")
-                time.sleep(5)
+                conn.connect()
+                conn.send(x.msg + "  ")
                 
             time.sleep(1)
 
@@ -336,4 +364,22 @@ if __name__ == '__main__':
     print("started main")
 
     gui = GUI()
+    conn = server.Server(gui)
+
+    # create list of threads
+    threads = []
+
+    # create server thread
+    threads.append(threading.Thread(name='tcp_server', target=conn.startUp))
+
+    # start all threads
+    for thread in threads:
+        print("starting thread", thread.name)
+        thread.start()
+
     gui.run()
+
+    # join all threads
+    for thread in threads:
+        thread.join()
+
