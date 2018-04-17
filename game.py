@@ -55,6 +55,30 @@ class Player():
         if self.right != None:
             print ("There is a path to the right")
 
+        move = None
+        while (move == None):
+            sel = input("\nSelect a direction to move\n")
+            sel = sel.lower()
+
+            if (sel.find("forward") != -1 or sel.find("straight") != -1) and self.straight != None:
+                nxt = Board.board[self.straight]
+                move = "forward"
+            elif sel.find("back") != -1 and self.back != None:
+                nxt = Board.board[self.back]
+                move = "back"
+            elif sel.find("left") != -1 and self.left != None:
+                nxt = Board.board[self.left]
+                move = "left"
+            elif sel.find("right") != -1 and self.right != None:
+                nxt = Board.board[self.right]
+                move = "right"
+
+            if move == None:
+                print ("\nNo path in that direction")
+
+        print ("Moving " + move)
+
+
 class Board():
 
     board = [None] * 26
