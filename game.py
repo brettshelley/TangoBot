@@ -118,7 +118,7 @@ class Player():
     def fight(self, enemies):
         size = len(enemies)
         if enemies[0] == 25:
-<<<<<<< HEAD
+
             print("Uh oh! Sir Robot has encountered "+str(size)+" festering goblin children\n")
             enemyCount = len(enemies)
             for i in range(1,len(enemies)):
@@ -173,8 +173,7 @@ class Player():
                      print("We have fled!")
 
 	if enemies[0] == 25:
-=======
->>>>>>> 6ba170f7127f867490a39a53c721a1d4ca24e425
+
             print("Uh oh! Sir Robot has encoutered "+str(size)+" festering goblin children\n")
             enemyCount = len(enemies)
             for i in range(1,len(enemies)):
@@ -201,11 +200,7 @@ class Player():
                 elif act.find("Flee")!=1:
                      print("We have fled!")
 
-<<<<<<< HEAD
-
-=======
-            print("You've killed those shit Goblins mate!")
->>>>>>> 6ba170f7127f867490a39a53c721a1d4ca24e425
+        print("You've killed those shit Goblins mate!")
                 
  
                 
