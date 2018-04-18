@@ -28,8 +28,8 @@ class Player():
         self.current = start
         self.facing = direction.SOUTH
 
-        while (not self.end and turns < 20):
-            turns += 1
+        while (not self.end and self.turns < 20):
+            self.turns += 1
             self.paths()
             self.move()
         
