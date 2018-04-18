@@ -17,6 +17,8 @@ class Player():
     left = None
     right = None
 
+    hp = 100
+
     def __init__(self, start):
         self.current = start
         self.facing = direction.SOUTH
@@ -45,7 +47,6 @@ class Player():
             self.left = self.current.south
             self.right = self.current.north
 
-    def move(self):
         if self.straight != None:
             print ("There is a path straight ahead")
         if self.back != None:
@@ -54,6 +55,8 @@ class Player():
             print ("There is a path to the left")
         if self.right != None:
             print ("There is a path to the right")
+
+    def move(self):
 
         move = None
         while (move == None):
@@ -77,7 +80,29 @@ class Player():
                 print ("\nNo path in that direction")
 
         print ("Moving " + move)
+        self.current = nxt
+        self.execute()
 
+    def execute(self):
+
+        if self.current.room == "easy":
+            enemies = [25] * int(random.uniform(3, 6))
+            self.fight(enemies)
+        elif self.current.room == "medium":
+            enemies = [50] * int(random.uniform(2, 5))
+            self.fight(enemies)
+        elif self.current.room == "hard":
+            enemies = [75] * int(random.uniform(1, 3))
+            self.fight(enemies)
+        elif self.current.room == "charge":
+            self.hp = 100
+        elif self.current.room == "coffee":
+            print ("The exit is that way")
+        elif self.current.room == "fun":
+            print ("Solve my puzzle")
+
+    def fight(self, enemies):
+        return
 
 class Board():
 
