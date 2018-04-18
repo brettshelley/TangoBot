@@ -106,6 +106,60 @@ class Player():
     def fight(self, enemies):
         size = len(enemies)
         if enemies[0] == 25:
+            print("Uh oh! Sir Robot has encountered "+str(size)+" festering goblin children\n")
+            enemyCount = len(enemies)
+            for i in range(1,len(enemies)):
+                print("What should Sir Robot do? Fight or Flee!?!")
+                print("There are "+str(enemyCount)+" festering goblin children remaining\n")
+                act = input("")
+                act = act.lower()
+                if act.find("fight")!=-1:
+                    enemyHealth = 25
+                    while enemyHealth >= 0:
+                     hit = random.uniform(10,30)
+                     damage = enemyCount * 2
+                     self.hp = self.hp-damage
+                     if self.hp <= 0:
+                        quit()
+                     print("Sir Robot hit a " + str(hit) + " on a goblin child")
+                     print("Sir Robot took " + str(damage) +" damage!, It has" + str(self.hp) + "health remaining\n")
+                     enemyHealth = enemyHealth-hit
+                     if enemyHealth >= 0:
+                        print("He is still alive you attack again!!!!")
+                     else:
+                        print("Great Hit! you've defeated a goblin child")
+                        enemyCount = enemyCount - 1
+                elif act.find("Flee")!=1:
+                     print("We have fled!")
+
+	if enemies[0] == 50:
+            print("Uh oh! Sir Robot has encountered "+str(size)+" Sweaty Hob Goblins\n”)
+            enemyCount = len(enemies)
+            for i in range(1,len(enemies)):
+                print("What should Sir Robot do? Fight or Flee!?!")
+                print("There are "+str(enemyCount)+" Sweaty Hob Goblins\n”)
+                act = input("")
+                act = act.lower()
+                if act.find("fight")!=-1:
+                    enemyHealth = 50
+                    while enemyHealth >= 0:
+                     hit = random.uniform(25,65)
+                     damage = enemyCount * 2
+                     self.hp = self.hp-damage
+                     if self.hp <= 0:
+                        quit()
+                     print("Sir Robot hit a " + str(hit) + " on a goblin child")
+                     print("Sir Robot took " + str(damage) +" damage!, It has" + str(self.hp) + "health remaining\n")
+                     enemyHealth = enemyHealth-hit
+                     if enemyHealth >= 0:
+                        print("Its still alive you attack again!!!!")
+                     else:
+                        print("Great Hit! you've defeated a goblin child")
+                        enemyCount = enemyCount - 1
+                elif act.find("Flee")!=1:
+                     print("We have fled!")
+
+	if enemies[0] == 25:
             print("Uh oh! Sir Robot has encoutered "+str(size)+" festering goblin children\n")
             enemyCount = len(enemies)
             for i in range(1,len(enemies)):
@@ -132,7 +186,7 @@ class Player():
                 elif act.find("Flee")!=1:
                      print("We have fled!")
 
-            print("You've killed those shit Goblins mate!")
+
                 
  
                 
