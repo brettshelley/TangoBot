@@ -11,6 +11,7 @@ class direction(Enum):
 class Player():
 
     current = None
+    nxt = None
     facing = None
     straight = None
     back = None
@@ -59,28 +60,29 @@ class Player():
     def move(self):
 
         move = None
-        while (move == None):
+        while (self.nxt == None):
             sel = input("\nSelect a direction to move\n")
             sel = sel.lower()
 
             if (sel.find("forward") != -1 or sel.find("straight") != -1) and self.straight != None:
-                nxt = Board.board[self.straight]
+                self.nxt = Board.board[self.straight]
                 move = "forward"
             elif sel.find("back") != -1 and self.back != None:
-                nxt = Board.board[self.back]
+                self.nxt = Board.board[self.back]
                 move = "back"
             elif sel.find("left") != -1 and self.left != None:
-                nxt = Board.board[self.left]
+                self.nxt = Board.board[self.left]
                 move = "left"
             elif sel.find("right") != -1 and self.right != None:
-                nxt = Board.board[self.right]
+                self.nxt = Board.board[self.right]
                 move = "right"
 
             if move == None:
                 print ("\nNo path in that direction")
 
         print ("Moving " + move)
-        self.current = nxt
+        self.current = self.nxt
+        print (self.current.room)
         self.execute()
 
     def execute(self):
@@ -130,9 +132,6 @@ class Board():
         self.board[start] = Node(start, "start")
         self.board[end] = Node(end, "end")
 
-        print ("Starting at node " + str(start))
-        p = Player(self.board[start])
-
         rooms = ["charge"] * 4
         rooms = rooms + (["coffee"] * 2)
         rooms = rooms + (["easy"] * 6)
@@ -145,6 +144,9 @@ class Board():
         for i in range(1,26):
             if self.board[i] == None:
                 self.board[i] = Node(i, rooms.pop())
+
+        print ("Starting at node " + str(start))
+        p = Player(self.board[start])
 
 
 class Node():
