@@ -145,12 +145,12 @@ class Player():
                 elif act.find("Flee")!=1:
                      print("We have fled!")
 
-	if enemies[0] == 50:
-            print("Uh oh! Sir Robot has encountered "+str(size)+" Sweaty Hob Goblins\n”)
+        if enemies[0] == 50:
+            print("Uh oh! Sir Robot has encountered "+str(size)+ " Sweaty Hob Goblins\n")
             enemyCount = len(enemies)
             for i in range(1,len(enemies)):
                 print("What should Sir Robot do? Fight or Flee!?!")
-                print("There are "+str(enemyCount)+" Sweaty Hob Goblins\n”)
+                print("There are "+str(enemyCount)+" Sweaty Hob Goblins\n")
                 act = input("")
                 act = act.lower()
                 if act.find("fight")!=-1:
@@ -172,7 +172,7 @@ class Player():
                 elif act.find("Flee")!=1:
                      print("We have fled!")
 
-	if enemies[0] == 25:
+        if enemies[0] == 25:
 
             print("Uh oh! Sir Robot has encoutered "+str(size)+" festering goblin children\n")
             enemyCount = len(enemies)
