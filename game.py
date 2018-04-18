@@ -3,10 +3,10 @@ from enum import Enum
 import random
 
 class direction(Enum):
-    NORTH = 0
-    EAST = 1
-    SOUTH = 2
-    WEST = 3
+    NORTH = 1
+    EAST = 2
+    SOUTH = 3
+    WEST = 4
 
 class Player():
 
@@ -18,17 +18,13 @@ class Player():
     left = None
     right = None
 
-    end = False
-
     hp = 100
 
     def __init__(self, start):
         self.current = start
         self.facing = direction.SOUTH
-
-        while (not self.end):
-            self.paths()
-            self.move()
+        self.paths()
+        self.move()
         
     def paths(self):
         if self.facing == direction.NORTH:
@@ -64,7 +60,7 @@ class Player():
     def move(self):
 
         move = None
-        while (move == None):
+        while (self.nxt == None):
             sel = input("\nSelect a direction to move\n")
             sel = sel.lower()
 
@@ -73,22 +69,20 @@ class Player():
                 move = "forward"
             elif sel.find("back") != -1 and self.back != None:
                 self.nxt = Board.board[self.back]
-                self.facing = direction((self.facing.value + 2) % 4) 
                 move = "back"
             elif sel.find("left") != -1 and self.left != None:
                 self.nxt = Board.board[self.left]
-                self.facing = direction((self.facing.value - 1) % 4)
                 move = "left"
             elif sel.find("right") != -1 and self.right != None:
                 self.nxt = Board.board[self.right]
-                self.facing = direction((self.facing.value + 1) % 4)
                 move = "right"
 
             if move == None:
                 print ("\nNo path in that direction")
 
-        print ("Moving " + move + "\n")
+        print ("Moving " + move)
         self.current = self.nxt
+        print (self.current.room)
         self.execute()
 
     def execute(self):
@@ -105,25 +99,53 @@ class Player():
         elif self.current.room == "charge":
             self.hp = 100
         elif self.current.room == "coffee":
-            print (Board.hint)
+            print ("The exit is that way")
         elif self.current.room == "fun":
-            questions = ["Who is your father?", "Who did 9 11?", "Who is the best professor?", "Who do you love the most?", "Who is a robot in disguise?"]
-            q = int(random.uniform(0, len(questions)-1))
-            ans = ""
-            while (ans != "Hunter Lloyd"):
-                ans = input(questions[q] + "\n")
-            print ("\n")
-        elif self.curren.room == "end":
-            print ("You have reached the end")
-            self.end = True
+            print ("Solve my puzzle")
 
     def fight(self, enemies):
+        size = len(enemies)
+        if enemies[0] == 25:
+            print("Uh oh! Sir Robot has encoutered "+str(size)+" festering goblin children\n")
+            enemyCount = len(enemies)
+            for i in range(1,len(enemies)):
+                print("What should Sir Robot do? Fight or Flee!?!")
+                print("There are "+str(enemyCount)+" festering goblin children remaining\n")
+                act = input("")
+                act = act.lower()
+                if act.find("fight")!=-1:
+                    enemyHealth = 25
+                    while enemyHealth >= 0:
+                     hit = random.uniform(10,30)
+                     damage = enemyCount * 2
+                     self.hp = self.hp-damage
+                     if self.hp <= 0:
+                        quit()
+                     print("Sir Robot hit a " + str(hit) + " on a goblin child")
+                     print("Sir Robot took " + str(damage) +" damage!, It has" + str(self.hp) + "health remaining\n")
+                     enemyHealth = enemyHealth-hit
+                     if enemyHealth >= 0:
+                        print("Its still alive you attack again!!!!")
+                     else:
+                        print("Great Hit! you've defeated a goblin child")
+                        enemyCount = enemyCount - 1
+                elif act.find("Flee")!=1:
+                     print("We have fled!")
+
+            print("You've killed those shit Goblins mate!")
+                
+ 
+                
+            
+
+
+
+
         return
 
 class Board():
 
     board = [None] * 26
-    hint = ""
 
     def __init__(self):
 
@@ -134,19 +156,15 @@ class Board():
         if i == 1:
             start = j
             end = k + 20
-            hint = "south"
         elif i == 2:
             start = 5 * j
             end = (5 * (k-1)) + 1
-            hint = "west"
         elif i == 3:
             start = j + 20
             end = k
-            hint = "north"
         elif i == 4:
             start = (5 * (j-1)) + 1
             end = 5 * k
-            hint = "east"
 
         self.board[start] = Node(start, "start")
         self.board[end] = Node(end, "end")
