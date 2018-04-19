@@ -1,32 +1,28 @@
 import socket
 import sys
-import cmdParser
-
-host = '10.200.1.119'
-port = 5000
-m = ""
-connect = False
-send = False
+import gameCmds
 
 class Server():
-    def __init__(self, gui):
-        self.gui = gui
+    
+    host = "10.200.1.119"
+    port = 5000
+    m = ""
+    connect = False
+    send = False
 
-    def connect(self):
-        global connect
-        connect = True
+    def __init__(self, g):
+        self.game = g
 
-    def send(self, msg):
-        global send
-        global m
-        send = True
-        m = msg
+    def send(self, msg):i
+        self.connect = True
+        self.send = True
+        self.m = msg + "  "
 
     def startUp(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         print ('Socket Created')
         try:
-            sock.bind((host, port))
+            sock.bind((self.host, self.port))
         except socket.error as err:
             print ("Did not connect" + str(err[0]) + err[1])
             sys.exit
@@ -35,16 +31,13 @@ class Server():
         sock.listen(10)
         print ("I'm listening for you!")
         while 1:
-            global connect
-            if (connect):
+            if (self.connect):
                 conn, addr = sock.accept()
                 print ('Connect with' + addr[0] + ':' + str(addr[1]))
             
-                global send
-                global m
                 if (send == True):
-                    conn.send(bytes(m + "\n", "UTF-8"))
-                    send = False
+                    conn.send(bytes(self.m + "\n", "UTF-8"))
+                    self.send = False
                 else:
                     conn.send(bytes("\n", "UTF-8"))
             
@@ -55,9 +48,9 @@ class Server():
                         reply = reply + conn.recv(1024)
                         print (reply)
                         if (m == "listen"):
-                            cmdParser.parse_data(reply.decode("UTF-8"))
+                            self.game.move(reply.decode("UTF-8"))
             
-                connect = False
+                self.connect = False
 
         sock.close()
 
