@@ -1,6 +1,8 @@
 import threading
 from enum import Enum
 import random
+import gameServer as server
+
 
 class direction(Enum):
     NORTH = 0
@@ -124,7 +126,8 @@ class Player():
         size = len(enemies)
 
         if enemies[0] == 25:
-            print("Uh oh! Sir Robot has encountered "+str(size)+" festering goblin children\n")
+            msg = ("Uh oh! Sir Robot has encountered "+str(size)+" festering goblin children\n")
+            server.send(msg)
             enemyCount = len(enemies)
             for i in range(0,len(enemies)):
                 print("What should Sir Robot do? Fight or Flee!?!")
@@ -133,7 +136,6 @@ class Player():
                 act = act.lower()
                 if act.find("fight")!=-1:
                     enemyHealth = 25
-<<<<<<< HEAD
                     while enemyHealth >= 0:
                      hit = int(random.uniform(10,30))
                      damage = enemyCount * 2
@@ -148,24 +150,8 @@ class Player():
                      else:
                         print("Great Hit! you've defeated a goblin child")
                         enemyCount = enemyCount - 1
-=======
-                    while enemyHealth > 0:
-                        hit = int(random.uniform(10,30))
-                        damage = enemyCount * 2
-                        self.hp = self.hp-damage
-                        if self.hp <= 0:
-                            quit()
-                        print("Sir Robot hit a " + str(hit) + " on a goblin child")
-                        print("Sir Robot took " + str(damage) +" damage!, It has" + str(self.hp) + "health remaining\n")
-                        enemyHealth = enemyHealth-hit
-                        if enemyHealth > 0:
-                            print("He is still alive you attack again!!!!")
-                        else:
-                            print("Great Hit! you've defeated a goblin child")
-                            enemyCount = enemyCount - 1
->>>>>>> 3e9005f8bed6514f673ac9ee52cdd8d6125d8e57
                 elif act.find("Flee")!=1:
-                     print("We have fled!")
+                        print("We have fled!")
 
         elif enemies[0] == 50:
             print("Uh oh! Sir Robot has encountered "+str(size)+ " Sweaty Hob Goblins\n")
@@ -177,7 +163,6 @@ class Player():
                 act = act.lower()
                 if act.find("fight")!=-1:
                     enemyHealth = 50
-<<<<<<< HEAD
                     while enemyHealth >= 0:
                      hit = int(random.uniform(25,65))
                      damage = enemyCount * 4
@@ -196,29 +181,7 @@ class Player():
                      print("We have fled!")
 
         if enemies[0] == 75:
-
             print("Uh oh! Sir Robot has encoutered "+str(size)+" Hunter Lloyd Changelings\n")
-=======
-                    while enemyHealth > 0:
-                        hit = int(random.uniform(25,60))
-                        damage = enemyCount * 5
-                        self.hp = self.hp-damage
-                        if self.hp <= 0:
-                            quit()
-                        print("Sir Robot hit a " + str(hit) + " on a goblin")
-                        print("Sir Robot took " + str(damage) +" damage!, It has" + str(self.hp) + "health remaining\n")
-                        enemyHealth = enemyHealth-hit
-                        if enemyHealth > 0:
-                            print("Its still alive you attack again!!!!")
-                        else:
-                            print("Great Hit! you've defeated a goblin child")
-                            enemyCount = enemyCount - 1
-                elif act.find("Flee")!=1:
-                     print("We have fled!")
-
-        elif enemies[0] == 25:
-            print("Uh oh! Sir Robot has encoutered "+str(size)+" festering goblin children\n")
->>>>>>> 3e9005f8bed6514f673ac9ee52cdd8d6125d8e57
             enemyCount = len(enemies)
             for i in range(0,len(enemies)):
                 print("What should Sir Robot do? Fight or Flee!?!")
@@ -226,7 +189,6 @@ class Player():
                 act = input("")
                 act = act.lower()
                 if act.find("fight")!=-1:
-<<<<<<< HEAD
                     enemyHealth = 75
                     while enemyHealth >= 0:
                      hit = int(random.uniform(30,90))
@@ -242,34 +204,17 @@ class Player():
                      else:
                         print("Great Hit! you've defeated a goblin child")
                         enemyCount = enemyCount - 1
-=======
-                    enemyHealth = 25
-                    while enemyHealth > 0:
-                        hit = int(random.uniform(10,30))
-                        damage = enemyCount * 2
-                        self.hp = self.hp-damage
-                        if self.hp <= 0:
-                            quit()
-                        print("Sir Robot hit a " + str(hit) + " on a goblin child")
-                        print("Sir Robot took " + str(damage) +" damage!, It has" + str(self.hp) + "health remaining\n")
-                        enemyHealth = enemyHealth-hit
-                        if enemyHealth > 0:
-                            print("Its still alive you attack again!!!!")
-                        else:
-                            print("Great Hit! you've defeated a goblin child")
-                            enemyCount = enemyCount - 1
->>>>>>> 3e9005f8bed6514f673ac9ee52cdd8d6125d8e57
                 elif act.find("Flee")!=1:
                      print("We have fled!")
 
-        print("You've killed those shit Goblins mate!")
+        print("You've defeated the baddies, continue on with your adventure")
                 
 
 class Board():
 
     board = [None] * 26
     hint = ""
-”
+
     def __init__(self):
 
         i = int(random.uniform(1, 4))
