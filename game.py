@@ -2,7 +2,8 @@ import threading
 from enum import Enum
 import random
 import gameServer as server
-
+import time
+from control import commands
 
 class direction(Enum):
     NORTH = 0
@@ -11,6 +12,8 @@ class direction(Enum):
     WEST = 3
 
 class Player():
+
+    msg = ""
 
     current = None
     nxt = None
@@ -27,9 +30,13 @@ class Player():
     hp = 100
 
     def __init__(self, start):
-        self.current = start
+        self.current = Board.board[start]
         self.facing = direction.SOUTH
-
+    
+    def run(self):
+        c.superReset()
+        while (not conn.ready):
+            time.sleep(1)
         while (not self.end and self.turns < 20):
             self.turns += 1
             self.paths()
@@ -50,6 +57,7 @@ class Player():
             self.straight = self.current.east
             self.back = self.current.west
             self.left = self.current.north
+
             self.right = self.current.south
         elif self.facing == direction.WEST:
             self.straight = self.current.west
@@ -59,40 +67,64 @@ class Player():
 
         if self.straight != None:
             print ("There is a path straight ahead")
+            conn.send("I can go forward")
+            time.sleep(2)
         if self.back != None:
             print ("There is a path behind me")
+            conn.send("I can go backward")
+            time.sleep(2)
         if self.left != None:
             print ("There is a path to the left")
+            conn.send("I can go left")
+            time.sleep(2)
         if self.right != None:
             print ("There is a path to the right")
+            conn.send("I can go right")
+            time.sleep(2)
 
     def move(self):
 
         move = None
         while (move == None):
-            sel = input("\nSelect a direction to move\n")
+            conn.send("Choose a direction")
+            time.sleep(2)
+            conn.send("listen")
+            while (self.msg == ""):
+                time.sleep(1)
+            sel = self.msg
+            #sel = input("\nSelect a direction to move\n")
             sel = sel.lower()
 
             if (sel.find("forward") != -1 or sel.find("straight") != -1) and self.straight != None:
                 self.nxt = Board.board[self.straight]
                 move = "forward"
+                c.forward()
             elif sel.find("back") != -1 and self.back != None:
                 self.nxt = Board.board[self.back]
                 self.facing = direction((self.facing.value + 2) % 4)
                 move = "back"
+                c.backward()
             elif sel.find("left") != -1 and self.left != None:
                 self.nxt = Board.board[self.left]
                 self.facing = direction((self.facing.value - 1) % 4)
                 move = "left"
+                c.left()
             elif sel.find("right") != -1 and self.right != None:
                 self.nxt = Board.board[self.right]
                 self.facing = direction((self.facing.value + 1) % 4)
                 move = "right"
+                c.right()
 
             if move == None:
                 print ("\nNo path in that direction")
+                conn.send("No path in that direction")
+                time.sleep(2)
+
+            self.msg = ""
 
         print ("Moving " + move)
+        conn.send("Moving" + move)
+        time.sleep(2)
         self.current = self.nxt
         self.execute()
 
@@ -108,40 +140,68 @@ class Player():
             enemies = [75] * int(random.uniform(1, 3))
             self.fight(enemies)
         elif self.current.room == "charge":
+            print ("Charge it up! Sir Robot is restored to full health")
+            conn.send("I have found a charging station. My health is restored")
+            time.sleep(4)
             self.hp = 100
         elif self.current.room == "coffee":
             print ("The exit is that way")
+            conn.send("I should go " + Board.hint)
         elif self.current.room == "fun":
-            questions = ["Who are you?", "Who is your father", "Who is the best?" "question", "questions", "question"]
+            questions = ["Who are you?", "Who is your father", "Who is the best?", "question", "question", "question"]
             q = int(random.uniform(0, len(questions)-1))
             ans = ""
             while (ans != "Hunter Lloyd"):
-                ans = input(questions[q])
+                #ans = input(questions[q] + "\n")
+                conn.send(questions[q])
+                time.sleep(2)
+                conn.send("listen")
+                while (self.msg == ""):
+                    time.sleep(1)
+                ans = self.msg
+                self.msg = ""
             print ("\n")
+            conn.send("That is correct")
+            time.sleep(2)
         elif self.current.room == "end":
             print ("You have reached the end")
-            seld.end = True
+            conn.send("I have reached the end. Hooray")
+            self.end = True
 
     def fight(self, enemies):
+        conn.send("Oh no, there are enemies here")
+        time.sleep(2)
         size = len(enemies)
 
         if enemies[0] == 25:
-            msg = ("Uh oh! Sir Robot has encountered "+str(size)+" festering goblin children\n")
-            server.send(msg)
+            m = ("Uh oh! Sir Robot has encountered "+str(size)+" festering goblin children\n")
             enemyCount = len(enemies)
             for i in range(0,len(enemies)):
                 print("What should Sir Robot do? Fight or Flee!?!")
                 print("There are "+str(enemyCount)+" festering goblin children remaining\n")
-                act = input("")
+                #act = input("")
+                conn.send("There are " + str(enemyCount) + " festering goblins. Should I fight or run away?")
+                time.sleep(4)
+                conn.send("listen")
+                while self.msg == "":
+                    time.sleep(1)
+                act = self.msg
+                self.msg = ""
                 act = act.lower()
                 if act.find("fight")!=-1:
                     enemyHealth = 25
                     while enemyHealth >= 0:
-                     hit = int(random.uniform(10,30))
-                     damage = enemyCount * 2
+                     c.fight()
+                     hit = int(random.uniform(10,20))
+                     damage = enemyCount * 1
                      self.hp = self.hp-damage
                      if self.hp <= 0:
+                        print ("Sir Robot has died")
+                        self.end = True
+                        c.die()
                         quit()
+                     conn.send("ow")
+                     time.sleep(1)
                      print("Sir Robot hit a " + str(hit) + " on a goblin child")
                      print("Sir Robot took " + str(damage) +" damage!, He has " + str(self.hp) + " health remaining\n")
                      enemyHealth = enemyHealth-hit
@@ -150,8 +210,12 @@ class Player():
                      else:
                         print("Great Hit! you've defeated a goblin child")
                         enemyCount = enemyCount - 1
-                elif act.find("Flee")!=1:
-                        print("We have fled!")
+                    conn.send("I killed one, I have " + str(self.hp) + " health reamaining")
+                    time.sleep(4)
+                elif act.find("run")!=-1:
+                    self.flee()
+                    print("We have fled!")
+                    break
 
         elif enemies[0] == 50:
             print("Uh oh! Sir Robot has encountered "+str(size)+ " Sweaty Hob Goblins\n")
@@ -159,16 +223,29 @@ class Player():
             for i in range(0,len(enemies)):
                 print("What should Sir Robot do? Fight or Flee!?!")
                 print("There are "+str(enemyCount)+" Sweaty Hob Goblins\n")
-                act = input("")
+                #act = input("")
+                conn.send("There are " + str(enemyCount) + " hob goblins. Should I fight or run away?")
+                time.sleep(4)
+                conn.send("listen")
+                while self.msg == "":
+                    time.sleep(1)
+                act = self.msg
+                self.msg = ""
                 act = act.lower()
                 if act.find("fight")!=-1:
                     enemyHealth = 50
                     while enemyHealth >= 0:
-                     hit = int(random.uniform(25,65))
-                     damage = enemyCount * 4
+                     c.fight()
+                     hit = int(random.uniform(15,50))
+                     damage = enemyCount * 3
                      self.hp = self.hp-damage
                      if self.hp <= 0:
+                        print ("Sir Robot has died")
+                        self.end = True
+                        c.die()
                         quit()
+                     conn.send("ow")
+                     time.sleep(1)
                      print("Sir Robot hit a " + str(hit) + " on a hob goblin")
                      print("Sir Robot took " + str(damage) +" damage!, He has " + str(self.hp) + " health remaining\n")
                      enemyHealth = enemyHealth-hit
@@ -177,8 +254,12 @@ class Player():
                      else:
                         print("Great Hit! you've defeated a goblin child")
                         enemyCount = enemyCount - 1
-                elif act.find("Flee")!=1:
-                     print("We have fled!")
+                    conn.send("I killed one, I have " + str(self.hp) + " health remaining")
+                    time.sleep(4)
+                elif act.find("run")!=-1:
+                    self.flee() 
+                    print("We have fled!")
+                    break
 
         if enemies[0] == 75:
             print("Uh oh! Sir Robot has encoutered "+str(size)+" Hunter Lloyd Changelings\n")
@@ -186,16 +267,29 @@ class Player():
             for i in range(0,len(enemies)):
                 print("What should Sir Robot do? Fight or Flee!?!")
                 print("There are "+str(enemyCount)+" Hunter Lloyd Changelings remaining\n")
-                act = input("")
+                #act = input("")
+                conn.send("There are " + str(enemyCount) + " changelings. Should I fight or run away?")
+                time.sleep(4)
+                conn.send("listen")
+                while self.msg == "":
+                    time.sleep(1)
+                act = self.msg
+                self.msg = ""
                 act = act.lower()
                 if act.find("fight")!=-1:
                     enemyHealth = 75
                     while enemyHealth >= 0:
-                     hit = int(random.uniform(30,90))
-                     damage = enemyCount * 10
+                     c.fight()
+                     hit = int(random.uniform(25,75))
+                     damage = enemyCount * 8
                      self.hp = self.hp-damage
                      if self.hp <= 0:
+                        print("Sir Robot has died")
+                        self.end = True
+                        c.die()
                         quit()
+                     conn.send("ow")
+                     time.sleep(1)
                      print("Sir Robot hit a " + str(hit) + " on a Hunter Lloyd")
                      print("Sir Robot took " + str(damage) +" damage!, It has " + str(self.hp) + " health remaining\n")
                      enemyHealth = enemyHealth-hit
@@ -204,16 +298,42 @@ class Player():
                      else:
                         print("Great Hit! you've defeated a goblin child")
                         enemyCount = enemyCount - 1
-                elif act.find("Flee")!=1:
-                     print("We have fled!")
+                    conn.send("I killed one. I have " + str(self.hp) + " health remaining")
+                    time.sleep(4)
+                elif act.find("run")!=-1:
+                    self.flee()
+                    print("We have fled!")
+                    break
+                     
+        
+        if (enemyCount == 0):
+            print("You've defeated the baddies, continue on with your adventure")
+            conn.send("I have defeated the enemies")
+            time.sleep(2)
 
-        print("You've defeated the baddies, continue on with your adventure")
+    def flee(self):
+        fleeTo = None
+        while (fleeTo == None):
+            i = int(random.uniform(1, 4))
+            if (i == 1 and self.right != None):
+                fleeTo = self.right
+            elif (i == 2 and self.left != None):
+                fleeTo = self.left
+            elif (i == 3 and self.straight != None):
+                fleeTo = self.straight
+            elif (i == 4 and self.back != None):
+                fleeTo = self.back
+
+        self.current = Board.board[fleeTo]
+        conn.send("I have escaped to a safe place")
+        time.sleep(4)
                 
 
 class Board():
 
     board = [None] * 26
     hint = ""
+    start = None
 
     def __init__(self):
 
@@ -222,23 +342,23 @@ class Board():
         k = int(random.uniform(1, 5))
 
         if i == 1:
-            start = j
+            self.start = j
             end = k + 20
             self.hint = "south"
         elif i == 2:
-            start = 5 * j
+            self.start = 5 * j
             end = (5 * (k-1)) + 1
             self.hint = "west"
         elif i == 3:
-            start = j + 20
+            self.start = j + 20
             end = k
             self.hint = "north"
         elif i == 4:
-            start = (5 * (j-1)) + 1
+            self.start = (5 * (j-1)) + 1
             end = 5 * k
             self.hint = "east"
 
-        self.board[start] = Node(start, "start")
+        self.board[self.start] = Node(self.start, "start")
         self.board[end] = Node(end, "end")
 
         rooms = ["charge"] * 4
@@ -254,8 +374,8 @@ class Board():
             if self.board[i] == None:
                 self.board[i] = Node(i, rooms.pop())
 
-        print ("Starting at node " + str(start))
-        p = Player(self.board[start])
+        print ("Starting at node " + str(self.start))
+        #p = Player(self.board[start])
 
 
 class Node():
@@ -348,4 +468,25 @@ class Node():
             self.west = 24
 
 
-Board()
+if __name__ == '__main__':
+
+    print ("Starting main")
+
+    c = commands()
+    
+    b = Board()
+    print (b.start)
+    p = Player(b.start)
+    conn = server.Server(p)
+
+    threads = []
+    threads.append(threading.Thread(name='server', target=conn.startUp))
+
+    for thread in threads:
+        thread.start()
+
+    p.run()
+
+    for thread in threads:
+        thread.join()
+

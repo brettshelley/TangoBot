@@ -42,6 +42,7 @@ class Controller:
         self.Mins = [0] * 24
         self.Maxs = [0] * 24
         
+                
     # Cleanup by closing USB serial port
     def close(self):
         self.usb.close()
@@ -94,7 +95,14 @@ class Controller:
         self.sendCmd(cmd)
         # Record Target value
         self.Targets[chan] = target
-        
+
+    def fight(self):
+        print("Fighting")
+        self.setTarget(0,4000)
+        self.sleep(2)
+
+
+
     # Set speed of channel
     # Speed is measured as 0.25microseconds/10milliseconds
     # For the standard 1ms pulse width change to move a servo between extremes, a speed
@@ -168,4 +176,3 @@ class Controller:
     def stopScript(self):
         cmd = chr(0x24)
         self.sendCmd(cmd)
-
